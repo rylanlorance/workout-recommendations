@@ -54,7 +54,7 @@ const server = new ApolloServer({
 async function startServer() {
   try {
     await server.start();
-    server.applyMiddleware({ app, path: "/graphql" });
+    server.applyMiddleware({ app: app as any, path: "/graphql" });
 
     app.listen(PORT, () => {
       console.log(

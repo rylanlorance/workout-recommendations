@@ -13,6 +13,12 @@ export const typeDefs = gql`
     updatedAt: Date!
   }
 
+  
+  type WorkoutRecommendation {
+    id: ID!
+    workouts: [Workout!]!
+  }
+
   type Workout {
     id: ID!
     name: String!
@@ -38,5 +44,6 @@ export const typeDefs = gql`
     me: User!
     getWorkouts: [Workout!]!
     testOpenAI: String!
+    getWorkoutRecommendations: [WorkoutRecommendation!]!
   }
 `;

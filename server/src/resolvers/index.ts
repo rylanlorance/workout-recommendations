@@ -1,6 +1,6 @@
 import { DatabaseService } from "../services/db-service";
 import { AIRecommendationService } from "../services/ai-service";
-import { User, Workout } from "../types";
+import { User, Workout, WorkoutRecommendation } from "../types";
 
 // Initialize services
 const dbService = new DatabaseService();
@@ -26,6 +26,10 @@ export const resolvers = {
 
     getWorkouts: async (): Promise<Workout[]> => {
       return await dbService.getWorkouts();
+    },
+
+    getWorkoutRecommendations: async (): Promise<WorkoutRecommendation[]> => {
+      return await dbService.getWorkoutRecommendations();
     },
 
     testOpenAI: async (): Promise<string> => {

@@ -5,6 +5,7 @@ import {
   UserRow,
   WorkoutRow,
   DatabaseService as IDatabaseService,
+  WorkoutRecommendation,
 } from "../types";
 
 export class DatabaseService implements IDatabaseService {
@@ -32,6 +33,22 @@ export class DatabaseService implements IDatabaseService {
     const rows = stmt.all() as WorkoutRow[];
     return rows.map(this.mapWorkoutRow);
   }
+
+  async getWorkoutRecommendations(): Promise<WorkoutRecommendation[]> {
+    // do it stupid, create a dummy workout recommendation for all workouts
+    const stmt = this.db.prepare("SELECT * FROM workouts");
+    const rows = stmt.all() as WorkoutRow[];
+
+    const reccomendation: WorkoutRecommendation[] = [
+      {
+        id: "rec-1",
+        workouts: rows.map((row) => this.mapWorkoutRow(row)),
+      },
+    ];
+
+    return reccomendation;
+  }
+
 
   private mapUserRow(row: UserRow): User {
     return {

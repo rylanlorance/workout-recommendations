@@ -1,21 +1,10 @@
+const withMDX = require("@next/mdx")();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  env: {
-    GRAPHQL_ENDPOINT:
-      process.env.GRAPHQL_ENDPOINT || "http://localhost:4000/graphql",
-  },
-  webpack: (config) => {
-    config.module.rules.push({
-      test: /\.(graphql|gql)$/,
-      exclude: /node_modules/,
-      use: [
-        {
-          loader: "graphql-tag/loader",
-        },
-      ],
-    });
-    return config;
-  },
+  // Configure `pageExtensions` to include MDX files
+  pageExtensions: ["js", "jsx", "mdx", "ts", "tsx"],
+  // Optionally, add any other Next.js config below
 };
 
-module.exports = nextConfig;
+module.exports = withMDX(nextConfig);

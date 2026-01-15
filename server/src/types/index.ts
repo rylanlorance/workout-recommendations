@@ -9,6 +9,11 @@ export interface User {
   updatedAt: Date;
 }
 
+export interface WorkoutRecommendation {
+  id: string;
+  workouts: Workout[];
+}
+
 export interface Workout {
   id: string;
   name: string;
