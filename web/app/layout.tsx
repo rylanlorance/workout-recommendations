@@ -10,7 +10,7 @@ import Theme from './theme-provider'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 
-import Header from '@/components/ui/header'
+import Header from 'components/ui/header'
 
 const inter = Inter({
   subsets: ['latin'],

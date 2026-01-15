@@ -1,6 +1,6 @@
 import { DatabaseService } from "../services/db-service";
 import { AIRecommendationService } from "../services/ai-service";
-import { User, Workout, WorkoutRecommendation } from "../types";
+import { User, Workout, WorkoutRecommendation } from "@/types";
 
 // Initialize services
 const dbService = new DatabaseService();

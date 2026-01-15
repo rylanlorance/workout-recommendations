@@ -6,7 +6,7 @@ import {
   WorkoutRow,
   DatabaseService as IDatabaseService,
   WorkoutRecommendation,
-} from "../types";
+} from "@/types";
 
 export class DatabaseService implements IDatabaseService {
   private db: Database.Database;
