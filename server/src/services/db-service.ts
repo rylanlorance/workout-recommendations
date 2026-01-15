@@ -6,15 +6,19 @@ import {
   WorkoutRow,
   DatabaseService as IDatabaseService,
   WorkoutRecommendation,
+  RecommendationRequest,
 } from "@/types";
+import { AIRecommendationService } from "./ai-service";
 
 export class DatabaseService implements IDatabaseService {
   private db: Database.Database;
+  private aiService: AIRecommendationService;
 
   constructor() {
     const dbPath = process.env["DATABASE_PATH"] || "./data/workouts.db";
     this.db = new Database(dbPath);
     this.db.pragma("journal_mode = WAL");
+    this.aiService = new AIRecommendationService();
   }
 
   async getUser(id: string): Promise<User | null> {
@@ -34,19 +38,66 @@ export class DatabaseService implements IDatabaseService {
     return rows.map(this.mapWorkoutRow);
   }
 
-  async getWorkoutRecommendations(): Promise<WorkoutRecommendation[]> {
-    // do it stupid, create a dummy workout recommendation for all workouts
-    const stmt = this.db.prepare("SELECT * FROM workouts");
-    const rows = stmt.all() as WorkoutRow[];
-
-    const reccomendation: WorkoutRecommendation[] = [
-      {
-        id: "rec-1",
-        workouts: rows.map((row) => this.mapWorkoutRow(row)),
-      },
-    ];
-
-    return reccomendation;
+  async getWorkoutRecommendations(userId?: string): Promise<WorkoutRecommendation[]> {
+    try {
+      // Get all available workouts
+      const allWorkouts = await this.getWorkouts();
+      
+      // Get user preferences if userId is provided
+      let userPreferences = undefined;
+      if (userId) {
+        const user = await this.getUser(userId);
+        userPreferences = user?.preferences;
+      }
+      
+      // Use AI to analyze and recommend workouts
+      const request: RecommendationRequest = {
+        workouts: allWorkouts,
+        maxRecommendations: 10
+      };
+      
+      // Add optional properties only if they exist
+      if (userId) {
+        request.userId = userId;
+      }
+      if (userPreferences) {
+        request.preferences = userPreferences;
+      }
+      
+      const analyses = await this.aiService.analyzeAndRecommendWorkouts(request);
+      
+      // Map analyses to workout recommendations
+      const recommendedWorkouts = analyses
+        .map(analysis => {
+          const workout = allWorkouts.find(w => w.id === analysis.workoutId);
+          return workout ? { ...workout, recommendationScore: analysis.score, reasoning: analysis.reasoning } : null;
+        })
+        .filter(Boolean) as (Workout & { recommendationScore: number; reasoning: string })[];
+      
+      const recommendation: WorkoutRecommendation[] = [
+        {
+          id: `rec-${userId || 'general'}-${Date.now()}`,
+          workouts: recommendedWorkouts.map(({ recommendationScore, reasoning, ...workout }) => workout),
+        },
+      ];
+      
+      return recommendation;
+    } catch (error) {
+      console.error('Error getting AI recommendations:', error);
+      
+      // Fallback to returning all workouts
+      const stmt = this.db.prepare("SELECT * FROM workouts");
+      const rows = stmt.all() as WorkoutRow[];
+      
+      const fallbackRecommendation: WorkoutRecommendation[] = [
+        {
+          id: "rec-fallback",
+          workouts: rows.map((row) => this.mapWorkoutRow(row)),
+        },
+      ];
+      
+      return fallbackRecommendation;
+    }
   }
 
 

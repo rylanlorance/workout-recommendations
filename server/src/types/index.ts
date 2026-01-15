@@ -67,11 +67,28 @@ export interface ApiResponse<T> {
   success: boolean;
 }
 
+// AI Recommendation Types
+export interface WorkoutAnalysis {
+  workoutId: string;
+  score: number;
+  reasoning: string;
+}
+
+export interface RecommendationRequest {
+  userId?: string;
+  workouts: Workout[];
+  preferences?: WorkoutPreferences;
+  maxRecommendations?: number;
+}
+
 // Service Types
 export interface DatabaseService {
   getUser(id: string): Promise<User | null>;
+  getWorkouts(): Promise<Workout[]>;
+  getWorkoutRecommendations(userId?: string): Promise<WorkoutRecommendation[]>;
 }
 
 export interface AIRecommendationService {
-  testOpenAI(): Promise<string | null>;
+  testOpenAI(): Promise<string>;
+  analyzeAndRecommendWorkouts(request: RecommendationRequest): Promise<WorkoutAnalysis[]>;
 }

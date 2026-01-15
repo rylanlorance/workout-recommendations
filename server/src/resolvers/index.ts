@@ -28,8 +28,8 @@ export const resolvers = {
       return await dbService.getWorkouts();
     },
 
-    getWorkoutRecommendations: async (): Promise<WorkoutRecommendation[]> => {
-      return await dbService.getWorkoutRecommendations();
+    getWorkoutRecommendations: async (_: any, args: { userId?: string }): Promise<WorkoutRecommendation[]> => {
+      return await dbService.getWorkoutRecommendations(args.userId);
     },
 
     testOpenAI: async (): Promise<string> => {
