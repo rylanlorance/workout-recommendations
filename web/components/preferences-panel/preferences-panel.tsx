@@ -108,12 +108,9 @@ export default function PreferencesPanel() {
   };
 
   return (
-    <div className="p-6 rounded-lg shadow-sm border">
+    <div className="p-6 rounded-lg shadow-sm">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold">Your Workout Preferences</h2>
-        {updating && (
-          <p className="text-sm text-blue-600 mt-1">Saving changes...</p>
-        )}
+        <h2 className="text-xl font-semibold">Step 1: Set Your Preferences</h2>
         {updateError && (
           <p className="text-sm text-red-600 mt-1">Failed to save: {updateError.message}</p>
         )}
@@ -122,7 +119,7 @@ export default function PreferencesPanel() {
       {preferences ? (
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium mb-1">
               Difficulty Level
             </label>
             <DifficultyToggleGroup
@@ -133,7 +130,7 @@ export default function PreferencesPanel() {
 
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium mb-1">
               Duration (minutes)
             </label>
           </div>
@@ -162,7 +159,7 @@ export default function PreferencesPanel() {
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium mb-1">
               Goals
             </label>
           <GoalsToggleGroup 
