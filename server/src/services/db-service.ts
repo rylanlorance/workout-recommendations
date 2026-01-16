@@ -57,9 +57,59 @@ export class DatabaseService implements IDatabaseService {
     }
   } 
 
-  async getWorkouts(): Promise<Workout[]> {
-    const stmt = this.db.prepare("SELECT * FROM workouts");
-    const rows = stmt.all() as WorkoutRow[];
+  async getWorkouts(filters?: {
+    search?: string;
+    difficulty?: string;
+    minDuration?: number;
+    maxDuration?: number;
+    muscleGroups?: string[];
+    equipment?: string[];
+  }): Promise<Workout[]> {
+    let sql = "SELECT * FROM workouts WHERE 1=1";
+    const params: any[] = [];
+
+    if (filters) {
+      if (filters.search) {
+        sql += " AND (name LIKE ? OR description LIKE ?)";
+        const searchTerm = `%${filters.search}%`;
+        params.push(searchTerm, searchTerm);
+      }
+
+      if (filters.difficulty) {
+        sql += " AND difficulty = ?";
+        params.push(filters.difficulty);
+      }
+
+      if (filters.minDuration) {
+        sql += " AND duration_minutes >= ?";
+        params.push(filters.minDuration);
+      }
+      if (filters.maxDuration) {
+        sql += " AND duration_minutes <= ?";
+        params.push(filters.maxDuration);
+      }
+
+      if (filters.muscleGroups && filters.muscleGroups.length > 0) {
+        const muscleGroupConditions = filters.muscleGroups.map(() => "muscle_groups LIKE ?").join(" OR ");
+        sql += ` AND (${muscleGroupConditions})`;
+        filters.muscleGroups.forEach(group => {
+          params.push(`%"${group}"%`);
+        });
+      }
+
+      if (filters.equipment && filters.equipment.length > 0) {
+        const equipmentConditions = filters.equipment.map(() => "equipment LIKE ?").join(" OR ");
+        sql += ` AND (${equipmentConditions})`;
+        filters.equipment.forEach(equip => {
+          params.push(`%"${equip}"%`);
+        });
+      }
+    }
+
+    sql += " ORDER BY name";
+    
+    const stmt = this.db.prepare(sql);
+    const rows = stmt.all(...params) as WorkoutRow[];
     return rows.map(this.mapWorkoutRow);
   }
 

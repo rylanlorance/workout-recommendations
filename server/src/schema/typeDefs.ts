@@ -59,9 +59,18 @@ export const typeDefs = gql`
     goals: [String!]
   }
 
+  input WorkoutFiltersInput {
+    search: String
+    difficulty: String
+    minDuration: Int
+    maxDuration: Int
+    muscleGroups: [String!]
+    equipment: [String!]
+  }
+
   type Query {
     me: User!
-    getWorkouts: [Workout!]!
+    getWorkouts(filters: WorkoutFiltersInput): [Workout!]!
     testOpenAI: String!
     getWorkoutRecommendations: [WorkoutRecommendation!]!
   }

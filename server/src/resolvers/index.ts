@@ -24,8 +24,8 @@ export const resolvers = {
       return user;
     },
 
-    getWorkouts: async (): Promise<Workout[]> => {
-      return await dbService.getWorkouts();
+    getWorkouts: async (_: any, args: { filters?: any }): Promise<Workout[]> => {
+      return await dbService.getWorkouts(args.filters);
     },
 
     getWorkoutRecommendations: async (_: any, args: { userId?: string }): Promise<WorkoutRecommendation[]> => {
