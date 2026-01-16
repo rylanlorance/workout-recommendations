@@ -132,7 +132,7 @@ export default function WorkoutsPanel() {
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-4 overflow-y-auto max-h-96 pr-2">
             {recommendations.map((recommendation) => (
               <WorkoutCard
                 key={recommendation.id}
