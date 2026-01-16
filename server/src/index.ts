@@ -1,5 +1,6 @@
 import express from "express";
 import { ApolloServer } from "apollo-server-express";
+import { InMemoryLRUCache } from "apollo-server-caching";
 import cors from "cors";
 import helmet from "helmet";
 import dotenv from "dotenv";
@@ -35,14 +36,21 @@ app.get("/health", (_req, res) => {
   });
 });
 
+// Create cache instance
+const cache = new InMemoryLRUCache({
+  maxSize: Math.pow(2, 20) * 50, // 50MB
+});
+
 // Create Apollo Server
 const server = new ApolloServer({
   typeDefs,
   resolvers,
+  cache,
   context: ({ req }) => {
     // Add any context you need here (auth, user info, etc.)
     return {
       req,
+      cache,
       // Add user from JWT token or session here
       user: null,
     };

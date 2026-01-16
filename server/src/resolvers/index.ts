@@ -29,7 +29,7 @@ export const resolvers = {
     },
 
     getWorkoutRecommendations: async (_: any, args: { userId?: string }): Promise<WorkoutRecommendation[]> => {
-      const userId = args.userId || 'user-1'; // Default to user-1 if no userId provided
+      const userId = args.userId || 'user-1';
       return await dbService.getWorkoutRecommendations(userId);
     },
 
