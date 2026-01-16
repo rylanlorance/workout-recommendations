@@ -29,7 +29,8 @@ export const resolvers = {
     },
 
     getWorkoutRecommendations: async (_: any, args: { userId?: string }): Promise<WorkoutRecommendation[]> => {
-      return await dbService.getWorkoutRecommendations(args.userId);
+      const userId = args.userId || 'user-1'; // Default to user-1 if no userId provided
+      return await dbService.getWorkoutRecommendations(userId);
     },
 
     testOpenAI: async (): Promise<string> => {

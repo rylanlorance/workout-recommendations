@@ -63,7 +63,7 @@ export class DatabaseService implements IDatabaseService {
     return rows.map(this.mapWorkoutRow);
   }
 
-  async storeRecommendations(recommendations: WorkoutRecommendation[]): Promise<void> {
+  async storeRecommendations(recommendations: WorkoutRecommendation[], userId?: string): Promise<void> {
     const insertStmt = this.db.prepare(`
       INSERT OR REPLACE INTO workout_recommendations 
       (id, user_id, workout_id, confidence, reasoning, ai_generated, created_at) 
@@ -72,9 +72,24 @@ export class DatabaseService implements IDatabaseService {
     
     const insertMany = this.db.transaction((recs: WorkoutRecommendation[]) => {
       for (const rec of recs) {
+        // Extract userId from recommendation id (format: rec-workoutId-userId)
+        const extractedUserId = userId || rec.id.split('-').pop() || 'anon';
+        
+        // Verify user exists
+        const userCheck = this.db.prepare("SELECT id FROM users WHERE id = ?").get(extractedUserId);
+        if (!userCheck) {
+          continue; // Skip this recommendation
+        }
+        
+        // Verify workout exists  
+        const workoutCheck = this.db.prepare("SELECT id FROM workouts WHERE id = ?").get(rec.workout.id);
+        if (!workoutCheck) {
+          continue; // Skip this recommendation
+        }
+        
         insertStmt.run(
           rec.id,
-          rec.workout.id.split('-')[1], // Extract userId from recommendation id
+          extractedUserId,
           rec.workout.id,
           rec.confidence,
           rec.reasoning || null,
@@ -115,10 +130,8 @@ export class DatabaseService implements IDatabaseService {
 
       const recommendations: WorkoutRecommendation[] = [];
 
-      this.storeRecommendations(recommendations);
-
-      analyses.map(analysis => {
-        const recomendation: WorkoutRecommendation = {
+      analyses.forEach(analysis => {
+        const recommendation: WorkoutRecommendation = {
           id: `rec-${analysis.workoutId}-${userId || 'anon'}`,
           workout: allWorkouts.find(w => w.id === analysis.workoutId)!,
           confidence: analysis.score / 100,
@@ -126,8 +139,11 @@ export class DatabaseService implements IDatabaseService {
           aiGenerated: true,
           createdAt: new Date()
         };
-        recommendations.push(recomendation);
+        recommendations.push(recommendation);
       });
+
+      // Store recommendations after they're populated
+      this.storeRecommendations(recommendations, userId);
       
       return recommendations;
     } catch (error) {
