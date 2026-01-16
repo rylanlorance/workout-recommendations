@@ -7,6 +7,7 @@ import {
   DatabaseService as IDatabaseService,
   WorkoutRecommendation,
   RecommendationRequest,
+  WorkoutPreferences,
 } from "@/types";
 import { AIRecommendationService } from "./ai-service";
 
@@ -32,6 +33,30 @@ export class DatabaseService implements IDatabaseService {
     return this.mapUserRow(row);
   }
 
+  async updateUser(userId: string, preferences: WorkoutPreferences): Promise<User | null> {
+    try {
+      const stmt = this.db.prepare(`
+        UPDATE users 
+        SET preferences = ?, updated_at = ? 
+        WHERE id = ?
+      `); 
+      const result = stmt.run(
+        JSON.stringify(preferences),
+        Math.floor(Date.now() / 1000),
+        userId
+      );
+      
+      if (result.changes === 0) {
+        return null;
+      }
+
+      return await this.getUser(userId);
+    } catch (error) {
+      console.error('Error updating user preferences:', error);
+      return null;
+    }
+  } 
+
   async getWorkouts(): Promise<Workout[]> {
     const stmt = this.db.prepare("SELECT * FROM workouts");
     const rows = stmt.all() as WorkoutRow[];
@@ -40,23 +65,19 @@ export class DatabaseService implements IDatabaseService {
 
   async getWorkoutRecommendations(userId?: string): Promise<WorkoutRecommendation[]> {
     try {
-      // Get all available workouts
       const allWorkouts = await this.getWorkouts();
       
-      // Get user preferences if userId is provided
       let userPreferences = undefined;
       if (userId) {
         const user = await this.getUser(userId);
         userPreferences = user?.preferences;
       }
       
-      // Use AI to analyze and recommend workouts
       const request: RecommendationRequest = {
         workouts: allWorkouts,
         maxRecommendations: 10
       };
       
-      // Add optional properties only if they exist
       if (userId) {
         request.userId = userId;
       }
@@ -66,7 +87,6 @@ export class DatabaseService implements IDatabaseService {
       
       const analyses = await this.aiService.analyzeAndRecommendWorkouts(request);
       
-      // Map analyses to workout recommendations
       const recommendedWorkouts = analyses
         .map(analysis => {
           const workout = allWorkouts.find(w => w.id === analysis.workoutId);

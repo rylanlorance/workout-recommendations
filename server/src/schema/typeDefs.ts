@@ -13,7 +13,6 @@ export const typeDefs = gql`
     updatedAt: Date!
   }
 
-  
   type WorkoutRecommendation {
     id: ID!
     workouts: [Workout!]!
@@ -40,10 +39,31 @@ export const typeDefs = gql`
     goals: [String!]
   }
 
+  input WorkoutPreferencesInput {
+    difficulty: String
+    duration: Int
+    muscleGroups: [String!]
+    equipment: [String!]
+    goals: [String!]
+  }
+
+  input UpdatePreferencesInput {
+    difficulty: String
+    duration: Int
+    muscleGroups: [String!]
+    equipment: [String!]
+    goals: [String!]
+  }
+
   type Query {
     me: User!
     getWorkouts: [Workout!]!
     testOpenAI: String!
     getWorkoutRecommendations: [WorkoutRecommendation!]!
+  }
+
+  type Mutation {
+    updatePreferences(input: UpdatePreferencesInput!): WorkoutPreferences!
+    updateMe(input: WorkoutPreferencesInput!): User!
   }
 `;
