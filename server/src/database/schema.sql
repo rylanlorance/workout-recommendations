@@ -39,13 +39,34 @@ CREATE TABLE
         updated_at INTEGER DEFAULT (strftime ('%s', 'now'))
     );
 
--- Indexes for performance
+
+-- Workout recommendations table
+CREATE TABLE workout_recommendations (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    workout_id TEXT NOT NULL,
+    confidence REAL DEFAULT 0.0,
+    reasoning TEXT,
+    ai_generated BOOLEAN DEFAULT 1,
+    created_at INTEGER DEFAULT (strftime('%s', 'now')),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (workout_id) REFERENCES workouts (id) ON DELETE CASCADE,
+    UNIQUE(user_id, workout_id)
+);
+
 CREATE INDEX idx_users_email ON users (email);
-
 CREATE INDEX idx_users_fitness_level ON users (fitness_level);
-
 CREATE INDEX idx_workouts_difficulty ON workouts (difficulty);
-
 CREATE INDEX idx_workouts_duration ON workouts (duration_minutes);
-
 CREATE INDEX idx_workouts_muscle_groups ON workouts (muscle_groups);
+
+CREATE INDEX idx_users_created_at ON users (created_at);
+CREATE INDEX idx_users_updated_at ON users (updated_at);
+
+CREATE INDEX idx_workouts_created_at ON workouts (created_at);
+CREATE INDEX idx_workouts_updated_at ON workouts (updated_at);
+
+CREATE INDEX idx_workout_recommendations_user_id ON workout_recommendations (user_id);
+CREATE INDEX idx_workout_recommendations_workout_id ON workout_recommendations (workout_id);
+CREATE INDEX idx_workout_recommendations_created_at ON workout_recommendations (created_at);
+CREATE INDEX idx_workout_recommendations_confidence ON workout_recommendations (confidence);

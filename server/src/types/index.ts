@@ -11,7 +11,11 @@ export interface User {
 
 export interface WorkoutRecommendation {
   id: string;
-  workouts: Workout[];
+  workout: Workout;
+  confidence: number;
+  reasoning?: string;
+  aiGenerated: boolean;
+  createdAt: Date;
 }
 
 export interface Workout {

@@ -11,7 +11,7 @@ export const GET_WORKOUT_RECOMMENDATIONS = gql`
   query GetWorkoutRecommendations {
     getWorkoutRecommendations {
       id
-      workouts {
+      workout {
         id
         name
         description
@@ -23,6 +23,10 @@ export const GET_WORKOUT_RECOMMENDATIONS = gql`
         createdAt
         updatedAt
       }
+      confidence
+      reasoning
+      aiGenerated
+      createdAt
     }
   }
 `;
@@ -39,9 +43,6 @@ export default function WorkoutsPanel() {
   const { data, loading, error, refetch } = useQuery<QueryResponse>(GET_WORKOUT_RECOMMENDATIONS, {
     fetchPolicy: 'network-only',
     notifyOnNetworkStatusChange: true,
-    onCompleted: () => {
-      console.log("Workout recommendations fetched.");
-    },
   });
 
   const handleOpenWorkout = (workout: Workout) => {
@@ -119,17 +120,13 @@ export default function WorkoutsPanel() {
           </div>
         ) : (
           <div className="space-y-4">
-            {recommendations.map((recommendation) =>
-              recommendation.workouts.map((workout) => {
-                return (
-                  <WorkoutCard
-                    key={workout.id}
-                    workout={workout}
-                    onOpenWorkout={handleOpenWorkout}
-                  />
-                );
-              })
-            )}
+            {recommendations.map((recommendation) => (
+              <WorkoutCard
+                key={recommendation.workout.id}
+                workout={recommendation.workout}
+                onOpenWorkout={handleOpenWorkout}
+              />
+            ))}
           </div>
         )}
       </div>

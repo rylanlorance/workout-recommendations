@@ -63,6 +63,29 @@ export class DatabaseService implements IDatabaseService {
     return rows.map(this.mapWorkoutRow);
   }
 
+  async storeRecommendations(recommendations: WorkoutRecommendation[]): Promise<void> {
+    const insertStmt = this.db.prepare(`
+      INSERT OR REPLACE INTO workout_recommendations 
+      (id, user_id, workout_id, confidence, reasoning, ai_generated, created_at) 
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `);
+    
+    const insertMany = this.db.transaction((recs: WorkoutRecommendation[]) => {
+      for (const rec of recs) {
+        insertStmt.run(
+          rec.id,
+          rec.workout.id.split('-')[1], // Extract userId from recommendation id
+          rec.workout.id,
+          rec.confidence,
+          rec.reasoning || null,
+          rec.aiGenerated ? 1 : 0,
+          Math.floor(rec.createdAt.getTime() / 1000)
+        );
+      }
+    });
+    insertMany(recommendations);
+  }
+
   async getWorkoutRecommendations(userId?: string): Promise<WorkoutRecommendation[]> {
     try {
       const allWorkouts = await this.getWorkouts();
@@ -86,39 +109,49 @@ export class DatabaseService implements IDatabaseService {
       }
       
       const analyses = await this.aiService.analyzeAndRecommendWorkouts(request);
+      if (analyses === undefined || analyses.length === 0) {
+        throw new Error('No analyses returned from AI service');
+      }
+
+      const recommendations: WorkoutRecommendation[] = [];
+
+      this.storeRecommendations(recommendations);
+
+      analyses.map(analysis => {
+        const recomendation: WorkoutRecommendation = {
+          id: `rec-${analysis.workoutId}-${userId || 'anon'}`,
+          workout: allWorkouts.find(w => w.id === analysis.workoutId)!,
+          confidence: analysis.score / 100,
+          reasoning: analysis.reasoning,
+          aiGenerated: true,
+          createdAt: new Date()
+        };
+        recommendations.push(recomendation);
+      });
       
-      const recommendedWorkouts = analyses
-        .map(analysis => {
-          const workout = allWorkouts.find(w => w.id === analysis.workoutId);
-          return workout ? { ...workout, recommendationScore: analysis.score, reasoning: analysis.reasoning } : null;
-        })
-        .filter(Boolean) as (Workout & { recommendationScore: number; reasoning: string })[];
-      
-      const recommendation: WorkoutRecommendation[] = [
-        {
-          id: `rec-${userId || 'general'}-${Date.now()}`,
-          workouts: recommendedWorkouts.map(({ recommendationScore, reasoning, ...workout }) => workout),
-        },
-      ];
-      
-      return recommendation;
+      return recommendations;
     } catch (error) {
       console.error('Error getting AI recommendations:', error);
       
       // Fallback to returning all workouts
       const stmt = this.db.prepare("SELECT * FROM workouts");
       const rows = stmt.all() as WorkoutRow[];
-      
-      const fallbackRecommendation: WorkoutRecommendation[] = [
-        {
-          id: "rec-fallback",
-          workouts: rows.map((row) => this.mapWorkoutRow(row)),
-        },
-      ];
-      
-      return fallbackRecommendation;
+
+      const fallbackRecommendations: WorkoutRecommendation[] = rows.map(row => {
+        const workout = this.mapWorkoutRow(row);
+        return {
+          id: `fallback-${workout.id}-${userId || 'anon'}`,
+          workout,
+          confidence: 1.0,
+          aiGenerated: false,
+          createdAt: new Date()
+        };
+      });
+
+      return fallbackRecommendations;
     }
   }
+
 
 
   private mapUserRow(row: UserRow): User {

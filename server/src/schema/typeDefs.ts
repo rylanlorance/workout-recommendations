@@ -15,7 +15,11 @@ export const typeDefs = gql`
 
   type WorkoutRecommendation {
     id: ID!
-    workouts: [Workout!]!
+    workout: Workout!
+    confidence: Float
+    reasoning: String
+    aiGenerated: Boolean!
+    createdAt: Date!
   }
 
   type Workout {
