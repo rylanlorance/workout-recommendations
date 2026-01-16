@@ -32,7 +32,7 @@ export default function GoalsSelect({
 
   return (
     <div className="space-y-3">
-      <div className="text-sm font-medium text-gray-700 mb-3">
+      <div className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
         Select your fitness goals
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -45,8 +45,8 @@ export default function GoalsSelect({
               className={`
                 flex items-center space-x-3 p-3 rounded-lg border cursor-pointer transition-all
                 ${isSelected 
-                  ? 'border-blue-500 bg-blue-50 text-blue-900' 
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300 hover:bg-gray-50'
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-900 dark:text-blue-300 dark:border-blue-400' 
+                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700'
                 }
               `}
             >
@@ -54,7 +54,7 @@ export default function GoalsSelect({
                 type="checkbox"
                 checked={isSelected}
                 onChange={() => handleToggle(goal.value)}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                className="w-4 h-4 text-blue-600 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded focus:ring-blue-500 dark:focus:ring-blue-400"
               />
               <span className="text-sm font-medium">{goal.label}</span>
             </label>
@@ -62,16 +62,6 @@ export default function GoalsSelect({
         })}
       </div>
       
-      {value.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-gray-100">
-          <button
-            onClick={() => onValueChange?.([])}
-            className="text-sm text-red-600 hover:text-red-700 font-medium"
-          >
-            Clear all selections ({value.length})
-          </button>
-        </div>
-      )}
     </div>
   );
 }

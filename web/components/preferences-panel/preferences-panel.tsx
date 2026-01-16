@@ -1,12 +1,12 @@
 'use client'
 
-import { User, WorkoutPreferences } from "@/types/types";
+import { User } from "@/types/types";
 import { useQuery, useMutation, gql } from "@apollo/client";
-import { ToggleGroup } from "radix-ui";
 import { useState, useEffect } from "react";
 import DifficultyToggleGroup from "./form/difficulty-toggle-group";
 import MuscleGroupSelect from "./form/muscle-group-select";
 import GoalsToggleGroup from "./form/goals-toggle-group";
+import { GET_WORKOUT_RECOMMENDATIONS } from "../workouts-panel/workouts-pane";
 
 const GET_ME = gql`
   query GetMe {
@@ -49,13 +49,18 @@ export default function PreferencesPanel() {
     setIsClient(true);
   }, []);
 
-  const { data, loading, error } = useQuery<MeResponse>(GET_ME);
+  const { data, loading, error, refetch } = useQuery<MeResponse>(GET_ME, {
+    fetchPolicy: 'network-only',
+    notifyOnNetworkStatusChange: true
+  });
 
   const [updatePreferences, { loading: updating, error: updateError }] = useMutation(UPDATE_PREFERENCES, {
-    refetchQueries: [{ query: GET_ME }],
     onCompleted: () => {
-      console.log('Preferences updated successfully');
+      refetch();
     },
+    refetchQueries: [
+      GET_WORKOUT_RECOMMENDATIONS
+    ],
     onError: (error) => {
       console.error('Error updating preferences:', error);
     }
@@ -64,15 +69,6 @@ export default function PreferencesPanel() {
 
   if (!isClient) {
     return null;
-  }
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-6">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-        <span className="ml-2">Loading preferences...</span>
-      </div>
-    );
   }
 
   if (error) {
@@ -108,9 +104,9 @@ export default function PreferencesPanel() {
   };
 
   return (
-    <div className="p-6 rounded-lg shadow-sm">
+    <div className="p-2 rounded-lg shadow-sm">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold">Step 1: Set Your Preferences</h2>
+        <h2 className="text-xl font-semibold">Preferences</h2>
         {updateError && (
           <p className="text-sm text-red-600 mt-1">Failed to save: {updateError.message}</p>
         )}

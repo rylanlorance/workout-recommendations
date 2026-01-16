@@ -23,7 +23,7 @@ export function WorkoutCard({ workout, onOpenWorkout }: WorkoutCardProps) {
             onClick={() => onOpenWorkout?.(workout)}
             className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white text-sm font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
           >
-            view
+            Select
           </button>
         </div>
 
@@ -33,7 +33,7 @@ export function WorkoutCard({ workout, onOpenWorkout }: WorkoutCardProps) {
           <div className="mb-3">
             <h4 className="font-semibold text-lg text-gray-900 dark:text-white mb-2">{workout.name}</h4>
             <div className="flex items-center space-x-3">
-              <span className={`text-sm font-medium px-2 py-1 rounded ${difficultyColors[workout.difficulty as keyof typeof difficultyColors] || 'text-gray-600 dark:text-gray-400'}`}>
+              <span className={`text-sm font-medium rounded ${difficultyColors[workout.difficulty as keyof typeof difficultyColors] || 'text-gray-600 dark:text-gray-400'}`}>
                 {workout.difficulty}
               </span>
               <span className="text-sm text-teal-600 dark:text-teal-400 font-medium">
