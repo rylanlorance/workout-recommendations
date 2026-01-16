@@ -6,6 +6,7 @@ import './css/style.css'
 
 import { Inter, Red_Hat_Display } from 'next/font/google'
 import Theme from './theme-provider'
+import { ApolloClientProvider } from '../lib/apollo-client'
 
 import AOS from 'aos'
 import 'aos/dist/aos.css'
@@ -42,14 +43,16 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>{/* suppressHydrationWarning: https://github.com/vercel/next.js/issues/44343 */}
       <body className={`${inter.variable} ${redhat.variable} font-inter antialiased bg-white text-gray-900 dark:bg-gray-900 dark:text-gray-100 tracking-tight`}>
-        <Theme>
-          <div className="flex flex-col min-h-screen overflow-hidden">
-            <Header />
-            <main className="grow">
-              {children}
-            </main>
-          </div>
-        </Theme>
+        <ApolloClientProvider>
+          <Theme>
+            <div className="flex flex-col min-h-screen overflow-hidden">
+              <Header />
+              <main className="grow">
+                {children}
+              </main>
+            </div>
+          </Theme>
+        </ApolloClientProvider>
       </body>
     </html>
   )

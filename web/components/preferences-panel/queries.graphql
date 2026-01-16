@@ -1,0 +1,24 @@
+query GetWorkoutPreferences {
+  getWorkoutPreferences {
+    difficulty
+    duration
+    muscleGroups
+    equipment
+    goals
+  }
+}
+
+query GetMe {
+  me {
+    id
+    name
+    email
+    preferences {
+      difficulty
+      duration
+      muscleGroups
+      equipment
+      goals
+    }
+  }
+}
