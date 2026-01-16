@@ -11,7 +11,7 @@ import { ApolloClientProvider } from '../lib/apollo-client'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 
-import Header from 'components/ui/header'
+import Header from '@/components/header'
 
 const inter = Inter({
   subsets: ['latin'],

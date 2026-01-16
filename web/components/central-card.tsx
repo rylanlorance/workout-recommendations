@@ -1,5 +1,5 @@
 import PreferencesPanel from "./preferences-panel/preferences-panel";
-import WorkoutsPanel from "./workouts-panel/workouts-pane";
+import WorkoutsPanel from "./workouts-panel/workouts-panel";
 
 export default function CentralCard() {
   return (

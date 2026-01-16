@@ -6,7 +6,7 @@ import { useState, useEffect } from "react";
 import DifficultyToggleGroup from "./form/difficulty-toggle-group";
 import MuscleGroupSelect from "./form/muscle-group-select";
 import GoalsToggleGroup from "./form/goals-toggle-group";
-import { GET_WORKOUT_RECOMMENDATIONS } from "../workouts-panel/workouts-pane";
+import { GET_WORKOUT_RECOMMENDATIONS } from "../workouts-panel/workouts-panel";
 
 const GET_ME = gql`
   query GetMe {
@@ -123,14 +123,6 @@ export default function PreferencesPanel() {
               onValueChange={handleDifficultyChange}
             />
           </div>
-
-
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Duration (minutes)
-            </label>
-          </div>
-
           <div>
             <label className="block text-sm font-medium mb-1">
               Target Muscle Groups

@@ -8,13 +8,6 @@ export default function Header() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-between h-20">
 
-          {/* Site branding */}
-          <div className="shrink-0 mr-5">
-            <Link href="/" className="block" aria-label="Cruip">
-              <Logo />
-            </Link>
-          </div>
-
           {/* Desktop navigation */}
           <nav className="hidden md:flex md:grow">
             {/* Desktop menu links */}
